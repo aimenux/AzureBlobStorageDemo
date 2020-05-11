@@ -51,7 +51,7 @@ namespace App
                 }
             };
 
-            await blobClient.UploadBlobAsync(blobModel);
+            await blobClient.SaveBlobAsync(blobModel);
 
             Console.WriteLine($"Blob '{blobModel.Name}' is inserted");
 

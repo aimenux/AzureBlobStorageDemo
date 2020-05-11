@@ -23,7 +23,7 @@ namespace Lib
             throw new System.NotImplementedException();
         }
 
-        public async Task UploadBlobAsync<TBlob>(TBlob blob) where TBlob : class, IBlobModel
+        public async Task SaveBlobAsync<TBlob>(TBlob blob) where TBlob : class, IBlobModel
         {
             var blobClient = _blobContainerClient.GetBlobClient(blob.Name);
             var exists = await blobClient.ExistsAsync();
