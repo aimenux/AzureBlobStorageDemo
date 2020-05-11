@@ -18,9 +18,26 @@ namespace Lib
             _blobContainerClient = GetOrCreateBlobContainer(settings.ContainerName);
         }
 
-        public Task<TBlob> GetBlobAsync<TBlob>(string name) where TBlob : class, IBlobModel
+        public async Task<TBlob> GetBlobAsync<TBlob>(string name) where TBlob : class, IBlobModel
         {
-            throw new System.NotImplementedException();
+            var blobClient = _blobContainerClient.GetBlobClient(name);
+            var exists = await blobClient.ExistsAsync();
+            if (!exists) return default;
+
+            var response = await blobClient.DownloadAsync();
+            var download = response.Value;
+            var reader = new StreamReader(download.Content);
+            var content = await reader.ReadToEndAsync();
+            var metadata = download.Details.Metadata;
+
+            var blobModel = new BlobModel
+            {
+                Name = name,
+                Content = content,
+                Metadata = metadata
+            };
+
+            return blobModel as TBlob;
         }
 
         public async Task SaveBlobAsync<TBlob>(TBlob blob) where TBlob : class, IBlobModel

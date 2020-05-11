@@ -6,6 +6,6 @@ namespace Lib
     {
         string Name { get; }
         object Content { get; }
-        Dictionary<string, string> Metadata { get; }
+        IDictionary<string, string> Metadata { get; }
     }
 }

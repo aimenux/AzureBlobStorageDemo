@@ -36,15 +36,16 @@ namespace App
             var serviceProvider = services.BuildServiceProvider();
             var blobClient = serviceProvider.GetService<IBlobClient>();
 
+            var name = $"{Guid.NewGuid()}.txt";
             var blobModel = new BlobModel
             {
+                Name = name,
                 Content = new TvShow
                 {
                     Id = "#1",
                     Name = "OnePunchMan",
                     CreationDate = DateTime.UtcNow
                 },
-                Name = $"{Guid.NewGuid()}.txt",
                 Metadata = new Dictionary<string, string>
                 {
                     ["Author"] = "One"
@@ -52,8 +53,10 @@ namespace App
             };
 
             await blobClient.SaveBlobAsync(blobModel);
+            Console.WriteLine($"Blob '{blobModel.Name}' is uploaded");
 
-            Console.WriteLine($"Blob '{blobModel.Name}' is inserted");
+            var blobFound = await blobClient.GetBlobAsync<BlobModel>(name);
+            Console.WriteLine($"Blob content '{blobFound.Content}' is found");
 
             Console.WriteLine("Press any key to exit !");
             Console.ReadKey();

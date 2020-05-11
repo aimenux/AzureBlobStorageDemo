@@ -6,6 +6,6 @@ namespace Lib
     {
         public string Name { get; set; }
         public object Content { get; set; }
-        public Dictionary<string, string> Metadata { get; set; }
+        public IDictionary<string, string> Metadata { get; set; }
     }
 }
