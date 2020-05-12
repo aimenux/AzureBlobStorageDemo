@@ -2,10 +2,10 @@
 
 namespace Lib
 {
-    public interface IBlobModel
+    public interface IBlobModel<TBlobDocument>
     {
-        string Name { get; }
-        object Content { get; }
-        IDictionary<string, string> Metadata { get; }
+        string Name { get; set; }
+        TBlobDocument Content { get; set; }
+        IDictionary<string, string> Metadata { get; set; }
     }
 }

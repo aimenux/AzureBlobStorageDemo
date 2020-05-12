@@ -10,27 +10,30 @@ namespace Lib
     public class BlobClient : IBlobClient
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly BlobContainerClient _blobContainerClient;
 
         public BlobClient(ISettings settings)
         {
             _blobServiceClient = new BlobServiceClient(settings.ConnectionString);
-            _blobContainerClient = GetOrCreateBlobContainer(settings.ContainerName);
         }
 
-        public async Task<TBlob> GetBlobAsync<TBlob>(string name) where TBlob : class, IBlobModel
+        public async Task<TBlob> GetBlobAsync<TBlob, TBlobDocument>(string name)
+            where TBlob : class, IBlobModel<TBlobDocument>
+            where TBlobDocument : class
         {
-            var blobClient = _blobContainerClient.GetBlobClient(name);
+            var containerName = BlobContainerAttribute.GetContainerName<TBlobDocument>();
+            var blobContainerClient = GetOrCreateBlobContainer(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(name);
             var exists = await blobClient.ExistsAsync();
             if (!exists) return default;
 
             var response = await blobClient.DownloadAsync();
             var download = response.Value;
             var reader = new StreamReader(download.Content);
-            var content = await reader.ReadToEndAsync();
+            var jsonContent = await reader.ReadToEndAsync();
+            var content = JsonConvert.DeserializeObject<TBlobDocument>(jsonContent);
             var metadata = download.Details.Metadata;
 
-            var blobModel = new BlobModel
+            var blobModel = new BlobModel<TBlobDocument>
             {
                 Name = name,
                 Content = content,
@@ -40,9 +43,13 @@ namespace Lib
             return blobModel as TBlob;
         }
 
-        public async Task SaveBlobAsync<TBlob>(TBlob blob) where TBlob : class, IBlobModel
+        public async Task SaveBlobAsync<TBlob, TBlobDocument>(TBlob blob)
+            where TBlob : class, IBlobModel<TBlobDocument>
+            where TBlobDocument : class
         {
-            var blobClient = _blobContainerClient.GetBlobClient(blob.Name);
+            var containerName = BlobContainerAttribute.GetContainerName<TBlobDocument>();
+            var blobContainerClient = GetOrCreateBlobContainer(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(blob.Name);
             var exists = await blobClient.ExistsAsync();
             if (exists)
             {

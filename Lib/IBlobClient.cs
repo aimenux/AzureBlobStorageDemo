@@ -4,7 +4,12 @@ namespace Lib
 {
     public interface IBlobClient
     {
-        Task<TBlob> GetBlobAsync<TBlob>(string name) where TBlob : class, IBlobModel;
-        Task SaveBlobAsync<TBlob>(TBlob blob) where TBlob : class, IBlobModel;
+        Task<TBlob> GetBlobAsync<TBlob, TBlobDocument>(string name)
+            where TBlob : class, IBlobModel<TBlobDocument>
+            where TBlobDocument : class;
+
+        Task SaveBlobAsync<TBlob, TBlobDocument>(TBlob blob)
+            where TBlob : class, IBlobModel<TBlobDocument>
+            where TBlobDocument : class;
     }
 }
